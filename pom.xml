@@ -16,6 +16,11 @@
     <properties>
         <java.version>17</java.version>
         <openapi-generator-version>7.1.0</openapi-generator-version>
+        <jacoco.coverage.check>true</jacoco.coverage.check>
+        <jacoco.coverage.rule>COVEREDRATIO</jacoco.coverage.rule>
+        <jacoco.coverage.element>BUNDLE</jacoco.coverage.element>
+        <jacoco.coverage.counter>INSTRUCTION</jacoco.coverage.counter>
+        <jacoco.coverage.minimum>0.85</jacoco.coverage.minimum>
     </properties>
     <dependencies>
         <dependency>
@@ -114,6 +119,25 @@
                             <generateModelTests>false</generateModelTests>
                         </configuration>
 
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>0.8.7</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>report</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
                     </execution>
                 </executions>
             </plugin>
