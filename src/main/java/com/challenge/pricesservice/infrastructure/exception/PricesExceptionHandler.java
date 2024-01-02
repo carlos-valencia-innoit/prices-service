@@ -1,4 +1,4 @@
-package com.challenge.pricesservice.application.exception;
+package com.challenge.pricesservice.infrastructure.exception;
 
 import com.challenge.pricesservice.model.ErrorResponse;
 import org.springframework.http.HttpStatus;

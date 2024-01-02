@@ -1,4 +1,4 @@
-package com.challenge.pricesservice.application.controller;
+package com.challenge.pricesservice.infrastructure.controller;
 
 import com.challenge.pricesservice.api.DefaultApi;
 import com.challenge.pricesservice.model.PriceResponse;
