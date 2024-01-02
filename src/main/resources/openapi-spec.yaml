@@ -1,0 +1,69 @@
+openapi: 3.0.0
+info:
+  title: Prices Service API
+  version: "0.0.1"
+paths:
+  /prices:
+    get:
+      summary: Retrieve price information
+      parameters:
+        - name: applicationDate
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date
+        - name: productId
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: chainId
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PriceResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+components:
+  schemas:
+    PriceResponse:
+      type: object
+      properties:
+        productId:
+          type: string
+        chainId:
+          type: string
+        tariff:
+          type: number
+        applicationDates:
+          type: array
+          items:
+            type: string
+            format: date
+        finalPrice:
+          type: number
+    ErrorResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+        message:
+          type: string
