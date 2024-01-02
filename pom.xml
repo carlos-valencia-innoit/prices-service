@@ -140,6 +140,20 @@
                         </goals>
                     </execution>
                 </executions>
+                <configuration>
+                    <rules>
+                        <rule>
+                            <element>${jacoco.coverage.element}</element>
+                            <limits>
+                                <limit>
+                                    <counter>${jacoco.coverage.counter}</counter>
+                                    <value>${jacoco.coverage.rule}</value>
+                                    <minimum>${jacoco.coverage.minimum}</minimum>
+                                </limit>
+                            </limits>
+                        </rule>
+                    </rules>
+                </configuration>
             </plugin>
             <plugin>
                 <groupId>com.spotify</groupId>
