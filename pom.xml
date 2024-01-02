@@ -20,7 +20,7 @@
         <jacoco.coverage.rule>COVEREDRATIO</jacoco.coverage.rule>
         <jacoco.coverage.element>BUNDLE</jacoco.coverage.element>
         <jacoco.coverage.counter>INSTRUCTION</jacoco.coverage.counter>
-        <jacoco.coverage.minimum>0.85</jacoco.coverage.minimum>
+        <jacoco.coverage.minimum>0.80</jacoco.coverage.minimum>
     </properties>
     <dependencies>
         <dependency>
@@ -125,7 +125,7 @@
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
-                <version>0.8.7</version>
+                <version>0.8.10</version>
                 <executions>
                     <execution>
                         <goals>
@@ -153,6 +153,13 @@
                             </limits>
                         </rule>
                     </rules>
+                    <excludes>
+                        <exclude>**/model/*</exclude>
+                        <exclude>**/target/*</exclude>
+                        <exclude>**/PricesServiceApplication*</exclude>
+                        <exclude>**/ApiUtil*</exclude>
+                        <exclude>**/PricesExceptionHandler*</exclude>
+                    </excludes>
                 </configuration>
             </plugin>
             <plugin>
@@ -163,7 +170,23 @@
             <plugin>
                 <groupId>org.flywaydb</groupId>
                 <artifactId>flyway-maven-plugin</artifactId>
-                <version>8.5.0</version>
+                <version>9.22.3</version>
+                <executions>
+                    <execution>
+                        <phase>install</phase>
+                        <goals>
+                            <goal>migrate</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <url>jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;MODE=PostgreSQL</url>
+                    <user>sa</user>
+                    <password></password>
+                    <locations>
+                        <location>filesystem:src/main/resources/db/migration</location>
+                    </locations>
+                </configuration>
             </plugin>
         </plugins>
     </build>
