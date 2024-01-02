@@ -29,18 +29,41 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  productId:
-                    type: string
-                  chainId:
-                    type: string
-                  tariff:
-                    type: number
-                  applicationDates:
-                    type: array
-                    items:
-                      type: string
-                      format: date
-                  finalPrice:
-                    type: number
+                $ref: '#/components/schemas/PriceResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+components:
+  schemas:
+    PriceResponse:
+      type: object
+      properties:
+        productId:
+          type: string
+        chainId:
+          type: string
+        tariff:
+          type: number
+        applicationDates:
+          type: array
+          items:
+            type: string
+            format: date
+        finalPrice:
+          type: number
+    ErrorResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+        message:
+          type: string
