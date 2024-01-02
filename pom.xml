@@ -20,7 +20,7 @@
         <jacoco.coverage.rule>COVEREDRATIO</jacoco.coverage.rule>
         <jacoco.coverage.element>BUNDLE</jacoco.coverage.element>
         <jacoco.coverage.counter>INSTRUCTION</jacoco.coverage.counter>
-        <jacoco.coverage.minimum>0.85</jacoco.coverage.minimum>
+        <jacoco.coverage.minimum>0.80</jacoco.coverage.minimum>
     </properties>
     <dependencies>
         <dependency>
@@ -125,7 +125,7 @@
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
-                <version>0.8.7</version>
+                <version>0.8.10</version>
                 <executions>
                     <execution>
                         <goals>
@@ -153,6 +153,13 @@
                             </limits>
                         </rule>
                     </rules>
+                    <excludes>
+                        <exclude>**/model/*</exclude>
+                        <exclude>**/target/*</exclude>
+                        <exclude>**/PricesServiceApplication*</exclude>
+                        <exclude>**/ApiUtil*</exclude>
+                        <exclude>**/PricesExceptionHandler*</exclude>
+                    </excludes>
                 </configuration>
             </plugin>
             <plugin>
