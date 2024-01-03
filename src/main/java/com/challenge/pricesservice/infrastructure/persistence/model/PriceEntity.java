@@ -1,6 +1,5 @@
 package com.challenge.pricesservice.infrastructure.persistence.model;
 
-import com.challenge.pricesservice.domain.model.Price;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -48,12 +47,4 @@ public class PriceEntity {
 
     @Column(name = "CURR", length = 3)
     private String currency;
-
-    public static PriceEntity fromDomain(Price price) {
-        return new PriceEntity();
-    }
-
-    public Price toDomain() {
-        return new Price();
-    }
 }
