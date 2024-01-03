@@ -8,7 +8,6 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Service
 @AllArgsConstructor
@@ -17,10 +16,8 @@ public class PriceQueryService {
     private final PriceDtoMapper priceDtoMapper;
     private final PriceRepositoryPort priceRepositoryPort;
 
-    public List<PriceDTO> getPriceDetails(LocalDateTime applicationDate, Integer productId, Integer brandId) {
-        List<PriceDomain> priceDomains = priceRepositoryPort.findByDateAndProductIdAndBrandId(applicationDate, productId, brandId);
-        return priceDomains.stream()
-                .map(priceDtoMapper::priceToPriceDTO)
-                .toList();
+    public PriceDTO getPriceDetails(LocalDateTime applicationDate, Integer productId, Integer brandId) {
+        PriceDomain priceDomain = priceRepositoryPort.findByDateAndProductIdAndBrandId(applicationDate, productId, brandId);
+        return priceDtoMapper.priceToPriceDTO(priceDomain);
     }
 }

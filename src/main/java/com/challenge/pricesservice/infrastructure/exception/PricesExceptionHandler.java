@@ -8,11 +8,20 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 
 @ControllerAdvice
 public class PricesExceptionHandler {
+    @ExceptionHandler({PriceNotFoundException.class})
+    public ResponseEntity<ErrorResponse> handlePriceNotFoundException(PriceNotFoundException ex) {
+        return createResponseEntity(HttpStatus.NO_CONTENT, ex);
+    }
+
     @ExceptionHandler({Exception.class})
     public ResponseEntity<ErrorResponse> handleGenericException(Exception ex) {
+        return createResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR, ex);
+    }
+
+    private ResponseEntity<ErrorResponse> createResponseEntity(HttpStatus httpStatus, Exception ex) {
         ErrorResponse errorResponse = new ErrorResponse();
-        errorResponse.code(HttpStatus.INTERNAL_SERVER_ERROR.value());
+        errorResponse.code(httpStatus.value());
         errorResponse.message(ex.getLocalizedMessage());
-        return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<>(errorResponse, httpStatus);
     }
 }

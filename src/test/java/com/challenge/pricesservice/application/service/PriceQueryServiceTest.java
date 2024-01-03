@@ -12,14 +12,12 @@ import org.mockito.MockitoAnnotations;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.Collections;
-import java.util.List;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
 
-class PriceDomainQueryServiceTest {
+class PriceQueryServiceTest {
 
     @Mock
     private PriceRepositoryPort priceRepositoryPort;
@@ -44,13 +42,12 @@ class PriceDomainQueryServiceTest {
         PriceDTO mockPriceDTO = createDummyPriceDTO();
 
         when(priceRepositoryPort.findByDateAndProductIdAndBrandId(applicationDate, productId, brandId))
-                .thenReturn(Collections.singletonList(mockPriceDomain));
+                .thenReturn(mockPriceDomain);
         when(priceDtoMapper.priceToPriceDTO(mockPriceDomain)).thenReturn(mockPriceDTO);
 
-        List<PriceDTO> result = service.getPriceDetails(applicationDate, productId, brandId);
+        PriceDTO result = service.getPriceDetails(applicationDate, productId, brandId);
 
-        assertEquals(1, result.size());
-        assertPriceDTOEquals(mockPriceDTO, result.get(0));
+        assertPriceDTOEquals(mockPriceDTO, result);
     }
 
     private void assertPriceDTOEquals(PriceDTO expected, PriceDTO actual) {

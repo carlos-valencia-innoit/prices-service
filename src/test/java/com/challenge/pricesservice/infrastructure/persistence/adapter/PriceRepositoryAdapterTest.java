@@ -1,24 +1,26 @@
 package com.challenge.pricesservice.infrastructure.persistence.adapter;
 
 import com.challenge.pricesservice.domain.model.PriceDomain;
+import com.challenge.pricesservice.infrastructure.exception.PriceNotFoundException;
 import com.challenge.pricesservice.infrastructure.persistence.mapper.PriceMapper;
 import com.challenge.pricesservice.infrastructure.persistence.model.PriceEntity;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.function.Executable;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.Collections;
-import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
-class PriceDomainRepositoryAdapterTest {
+class PriceRepositoryAdapterTest {
 
     @Mock
     private PriceJpaRepository jpaRepository;
@@ -42,23 +44,35 @@ class PriceDomainRepositoryAdapterTest {
         PriceEntity mockEntity = createDummyPriceEntity();
         PriceDomain mockPriceDomain = createDummyPrice();
 
-        when(jpaRepository.findByProductIdAndBrandIdAndApplicationDate(productId, brandId, applicationDate))
-                .thenReturn(Collections.singletonList(mockEntity));
+        when(jpaRepository.findTopByProductIdAndBrandIdAndApplicationDateSortedByPriority(productId, brandId, applicationDate))
+                .thenReturn(Optional.of(mockEntity));
         when(mapper.toDomain(mockEntity)).thenReturn(mockPriceDomain);
 
-        List<PriceDomain> result = adapter.findByDateAndProductIdAndBrandId(applicationDate, productId, brandId);
+        PriceDomain result = adapter.findByDateAndProductIdAndBrandId(applicationDate, productId, brandId);
 
-        PriceDomain resultPriceDomain = result.get(0);
-        assertEquals(mockPriceDomain.id(), resultPriceDomain.id());
-        assertEquals(mockPriceDomain.brandId(), resultPriceDomain.brandId());
-        assertEquals(mockPriceDomain.startDate(), resultPriceDomain.startDate());
-        assertEquals(mockPriceDomain.endDate(), resultPriceDomain.endDate());
-        assertEquals(mockPriceDomain.priceList(), resultPriceDomain.priceList());
-        assertEquals(mockPriceDomain.productId(), resultPriceDomain.productId());
-        assertEquals(mockPriceDomain.priority(), resultPriceDomain.priority());
-        assertEquals(0, mockPriceDomain.price().compareTo(resultPriceDomain.price()));
-        assertEquals(mockPriceDomain.currency(), resultPriceDomain.currency());
+        assertEquals(mockPriceDomain.id(), result.id());
+        assertEquals(mockPriceDomain.brandId(), result.brandId());
+        assertEquals(mockPriceDomain.startDate(), result.startDate());
+        assertEquals(mockPriceDomain.endDate(), result.endDate());
+        assertEquals(mockPriceDomain.priceList(), result.priceList());
+        assertEquals(mockPriceDomain.productId(), result.productId());
+        assertEquals(mockPriceDomain.priority(), result.priority());
+        assertEquals(0, mockPriceDomain.price().compareTo(result.price()));
+        assertEquals(mockPriceDomain.currency(), result.currency());
+    }
 
+    @Test
+    void findByDateAndProductIdAndBrandIdShouldThrowPriceNotFoundException() {
+        Integer productId = 1;
+        Integer brandId = 1;
+        LocalDateTime applicationDate = LocalDateTime.now();
+
+        when(jpaRepository.findTopByProductIdAndBrandIdAndApplicationDateSortedByPriority(productId, brandId, applicationDate))
+                .thenReturn(Optional.empty());
+
+        Executable action = () -> adapter.findByDateAndProductIdAndBrandId(applicationDate, productId, brandId);
+
+        assertThrows(PriceNotFoundException.class, action);
     }
 
     public static PriceEntity createDummyPriceEntity() {
