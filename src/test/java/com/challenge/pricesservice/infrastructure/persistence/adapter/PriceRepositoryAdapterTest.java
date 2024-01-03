@@ -1,21 +1,23 @@
 package com.challenge.pricesservice.infrastructure.persistence.adapter;
 
-import com.challenge.pricesservice.domain.model.Price;
+import com.challenge.pricesservice.domain.model.PriceDomain;
+import com.challenge.pricesservice.infrastructure.exception.PriceNotFoundException;
+import com.challenge.pricesservice.infrastructure.persistence.mapper.PriceMapper;
 import com.challenge.pricesservice.infrastructure.persistence.model.PriceEntity;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.function.Executable;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import java.util.List;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.verify;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
 class PriceRepositoryAdapterTest {
@@ -23,50 +25,81 @@ class PriceRepositoryAdapterTest {
     @Mock
     private PriceJpaRepository jpaRepository;
 
+    @Mock
+    private PriceMapper mapper;
+
+    @InjectMocks
     private PriceRepositoryAdapter adapter;
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        adapter = new PriceRepositoryAdapter(jpaRepository);
     }
 
     @Test
-    void testSave() {
-        Price price = new Price();
-        PriceEntity priceEntity = PriceEntity.fromDomain(price);
-        when(jpaRepository.save(any(PriceEntity.class))).thenReturn(priceEntity);
+    void findByDateAndProductIdAndBrandIdShouldReturnPrices() {
+        Integer productId = 1;
+        Integer brandId = 1;
+        LocalDateTime applicationDate = LocalDateTime.now();
+        PriceEntity mockEntity = createDummyPriceEntity();
+        PriceDomain mockPriceDomain = createDummyPrice();
 
-        Price savedPrice = adapter.save(price);
-        assertNotNull(savedPrice);
+        when(jpaRepository.findTopByProductIdAndBrandIdAndApplicationDateSortedByPriority(productId, brandId, applicationDate))
+                .thenReturn(Optional.of(mockEntity));
+        when(mapper.toDomain(mockEntity)).thenReturn(mockPriceDomain);
+
+        PriceDomain result = adapter.findByDateAndProductIdAndBrandId(applicationDate, productId, brandId);
+
+        assertEquals(mockPriceDomain.id(), result.id());
+        assertEquals(mockPriceDomain.brandId(), result.brandId());
+        assertEquals(mockPriceDomain.startDate(), result.startDate());
+        assertEquals(mockPriceDomain.endDate(), result.endDate());
+        assertEquals(mockPriceDomain.priceList(), result.priceList());
+        assertEquals(mockPriceDomain.productId(), result.productId());
+        assertEquals(mockPriceDomain.priority(), result.priority());
+        assertEquals(0, mockPriceDomain.price().compareTo(result.price()));
+        assertEquals(mockPriceDomain.currency(), result.currency());
     }
 
     @Test
-    void testFindById() {
-        UUID id = UUID.randomUUID();
+    void findByDateAndProductIdAndBrandIdShouldThrowPriceNotFoundException() {
+        Integer productId = 1;
+        Integer brandId = 1;
+        LocalDateTime applicationDate = LocalDateTime.now();
+
+        when(jpaRepository.findTopByProductIdAndBrandIdAndApplicationDateSortedByPriority(productId, brandId, applicationDate))
+                .thenReturn(Optional.empty());
+
+        Executable action = () -> adapter.findByDateAndProductIdAndBrandId(applicationDate, productId, brandId);
+
+        assertThrows(PriceNotFoundException.class, action);
+    }
+
+    public static PriceEntity createDummyPriceEntity() {
         PriceEntity priceEntity = new PriceEntity();
-        when(jpaRepository.findById(id)).thenReturn(Optional.of(priceEntity));
-
-        Optional<Price> foundPrice = adapter.findById(id);
-        assertTrue(foundPrice.isPresent());
+        priceEntity.setId(UUID.randomUUID());
+        priceEntity.setBrandId(1);
+        priceEntity.setStartDate(LocalDateTime.now());
+        priceEntity.setEndDate(LocalDateTime.now());
+        priceEntity.setPriceList(1);
+        priceEntity.setProductId(1);
+        priceEntity.setPriority(1);
+        priceEntity.setPrice(new BigDecimal("99.99"));
+        priceEntity.setCurrency("EUR");
+        return priceEntity;
     }
 
-    @Test
-    void testFindAll() {
-        List<PriceEntity> priceEntities = List.of(new PriceEntity()); // Añadir entidades con datos de prueba
-        when(jpaRepository.findAll()).thenReturn(priceEntities);
-
-        List<Price> prices = adapter.findAll();
-        assertNotNull(prices);
-        assertEquals(priceEntities.size(), prices.size());
+    public static PriceDomain createDummyPrice() {
+        return new PriceDomain(
+                UUID.randomUUID(),
+                1,
+                LocalDateTime.now(),
+                LocalDateTime.now(),
+                1,
+                1,
+                1,
+                new BigDecimal("99.99"),
+                "EUR"
+        );
     }
-
-
-    @Test
-    void testDeleteById() {
-        UUID id = UUID.randomUUID();
-        adapter.deleteById(id);
-        verify(jpaRepository).deleteById(id);
-    }
-
 }

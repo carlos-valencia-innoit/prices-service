@@ -12,7 +12,7 @@ paths:
           required: true
           schema:
             type: string
-            format: date
+            format: 'date-time'
         - name: productId
           in: query
           required: true

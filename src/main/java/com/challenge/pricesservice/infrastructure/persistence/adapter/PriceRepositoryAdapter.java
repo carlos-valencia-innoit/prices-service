@@ -1,45 +1,29 @@
 package com.challenge.pricesservice.infrastructure.persistence.adapter;
 
-import com.challenge.pricesservice.domain.model.Price;
+import com.challenge.pricesservice.domain.model.PriceDomain;
 import com.challenge.pricesservice.domain.port.PriceRepositoryPort;
+import com.challenge.pricesservice.infrastructure.exception.PriceNotFoundException;
+import com.challenge.pricesservice.infrastructure.persistence.mapper.PriceMapper;
 import com.challenge.pricesservice.infrastructure.persistence.model.PriceEntity;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
+import java.time.LocalDateTime;
 import java.util.Optional;
-import java.util.UUID;
 
 @Repository
+@RequiredArgsConstructor
 public class PriceRepositoryAdapter implements PriceRepositoryPort {
 
     private final PriceJpaRepository jpaRepository;
-
-    @Autowired
-    public PriceRepositoryAdapter(PriceJpaRepository jpaRepository) {
-        this.jpaRepository = jpaRepository;
-    }
+    private final PriceMapper mapper;
 
     @Override
-    public Price save(Price price) {
-        PriceEntity priceEntity = PriceEntity.fromDomain(price);
-        return jpaRepository.save(priceEntity).toDomain();
-    }
+    public PriceDomain findByDateAndProductIdAndBrandId(LocalDateTime applicationDate, Integer productId, Integer brandId) {
+        Optional<PriceEntity> priceEntity = jpaRepository.findTopByProductIdAndBrandIdAndApplicationDateSortedByPriority(
+                productId, brandId, applicationDate);
 
-    @Override
-    public Optional<Price> findById(UUID id) {
-        return jpaRepository.findById(id).map(PriceEntity::toDomain);
-    }
-
-    @Override
-    public List<Price> findAll() {
-        return jpaRepository.findAll().stream()
-                .map(PriceEntity::toDomain)
-                .toList();
-    }
-
-    @Override
-    public void deleteById(UUID id) {
-        jpaRepository.deleteById(id);
+        return priceEntity.map(mapper::toDomain)
+                .orElseThrow(PriceNotFoundException::new);
     }
 }
